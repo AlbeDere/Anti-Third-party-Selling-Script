@@ -10,40 +10,50 @@ headers = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
 }
 
-# Visited URLs for tracking already scraped URLs
-already_visited = set()
 
 # Function to fetch and parse a product page
-def fetch_product_details(page_url):
-    if page_url in already_visited:
-        return None
-    response = requests.get(page_url, headers=headers)
-    if response.status_code == 200:
-        already_visited.add(page_url)  # Mark this URL as visited
-        soup = BeautifulSoup(response.content, 'html.parser')
-        details = {
-            'title': soup.select_one("#productTitle").text.strip() if soup.select_one("#productTitle") else 'N/A',
-            'price': soup.select_one('span.a-offscreen').text.strip() if soup.select_one('span.a-offscreen') else 'N/A',
-            'rating': soup.select_one("#acrPopover").get("title", 'N/A').replace("out of 5 stars", "").strip(),
-            'image': soup.select_one("#landingImage").get('src', 'N/A') if soup.select_one("#landingImage") else 'N/A',
-            'url': page_url
-        }
-        return details
-    else:
-        print(f"Failed to retrieve {page_url}")
-        return None
-
-# Function to scrape listing and compile product information
-def scrape_listing(url, limit=10):
-    products = []
-    response = requests.get(url, headers=headers)
-    soup = BeautifulSoup(response.content, 'html.parser')
-    product_links = soup.select("[data-asin] h2 a")
+def scrape_listing(url, limit, max_price, products=None):
+    if products is None:
+        products = []
     
-    for link in product_links[:limit]:  # Process only up to 'limit' product links
-        product_url = urljoin(url, link['href'])
-        product_details = fetch_product_details(product_url)
-        if product_details:
-            products.append(product_details)
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        product_containers = soup.select("div[data-asin]:not([data-asin=''])")
+        
+        for container in product_containers:
+            if len(products) >= limit:  # Exit if we've collected enough products
+                return products
+            
+            # Price extraction and formatting
+            price_element = container.select_one("span.a-price > span.a-offscreen")
+            if price_element:
+                price_text = price_element.get_text(strip=True)
+                price_value = float(price_text.replace('$', '').replace(',', ''))
+                if price_value >= max_price:  # Skip if price is above the limit
+                    continue
+            else:
+                continue  # Skip if no price is found
+            
+            # Extract other product details
+            title = container.select_one("a.a-link-normal.a-text-normal").get_text(strip=True) if container.select_one("a.a-link-normal.a-text-normal") else 'N/A'
+            rating = container.select_one("i.a-icon-star-small > span").get_text(strip=True) if container.select_one("i.a-icon-star-small > span") else 'N/A'
+            image = container.select_one("img.s-image").get('src') if container.select_one("img.s-image") else 'N/A'
+            product_url = urljoin(url, container.select_one("a.a-link-normal.a-text-normal").get('href')) if container.select_one("a.a-link-normal.a-text-normal") else 'N/A'
+            
+            products.append({
+                "title": title,
+                "price": price_text,
+                "rating": rating,
+                "image": image,
+                "url": product_url
+            })
+        
+        # Check for and process the next page if needed and if not reached the limit
+        next_page_el = soup.select_one('a.s-pagination-next')
+        if next_page_el and len(products) < limit:
+            next_page_url = next_page_el.attrs.get('href')
+            next_page_url = urljoin(url, next_page_url)
+            return scrape_listing(next_page_url, limit, max_price, products)
     
     return products
