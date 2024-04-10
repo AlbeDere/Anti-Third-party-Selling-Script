@@ -1,13 +1,14 @@
 import requests
 from bs4 import BeautifulSoup
+from configure import USER_AGENT, ACCEPT_ENCODING, ACCEPT_LANGUAGE, ACCEPT
 from urllib.parse import urljoin
 
 # Headers and initial setup
 headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 OPR/107.0.0.0',
-    'Accept-Language': 'en-US,en;q=0.9',
-    'Accept-Encoding': 'gzip, deflate, br',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'User-Agent': USER_AGENT,
+    'Accept-Language': ACCEPT_LANGUAGE,
+    'Accept-Encoding': ACCEPT_ENCODING,
+    'Accept': ACCEPT,
 }
 
 
