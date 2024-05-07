@@ -1,6 +1,5 @@
 import pandas as pd
 from amazon import scrape_listing
-import ebay
 
 
 def main():
