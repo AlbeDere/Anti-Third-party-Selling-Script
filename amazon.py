@@ -13,7 +13,7 @@ headers = {
 
 
 # Function to fetch and parse a product page
-def scrape_listing(url, limit, max_price, products=None):
+def scrape_listing(url, limit, max_price=None, products=None):
     if products is None:
         products = []
     
@@ -31,7 +31,7 @@ def scrape_listing(url, limit, max_price, products=None):
             if price_element:
                 price_text = price_element.get_text(strip=True)
                 price_value = float(price_text.replace('$', '').replace(',', ''))
-                if price_value >= max_price:  # Skip if price is above the limit
+                if max_price is not None and price_value >= max_price:  # Skip if price is above the limit
                     continue
             else:
                 continue  # Skip if no price is found

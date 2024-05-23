@@ -1,19 +1,22 @@
-import pandas as pd
+from flask import Flask, request, jsonify
 from amazon import scrape_listing
 
+app = Flask(__name__)
 
-def main():
-    product_name = input("What is the product name: ").strip().replace(" ", "+")
-    listing_url  = f"https://www.amazon.com/s?k={product_name}&s=review-rank"
-    print(listing_url)
-    max_products = 10
-    max_price = 250
-    products_data = scrape_listing(listing_url, max_products, max_price)
-    # Convert to DataFrame and save
-    df = pd.DataFrame(products_data)
-    df.to_csv("products_data.csv", index=False)
-
+@app.route('/scrape', methods=['GET'])
+def api_scrape():
+    # Extract query parameters
+    product_name = request.args.get('product_name', type=str)
+    limit = request.args.get('limit', default=10, type=int)
+    max_price = request.args.get('max_price', type=float)
+    
+    if product_name:
+        product_name = product_name.strip().replace(" ", "+")
+        listing_url = f"https://www.amazon.com/s?k={product_name}&s=review-rank"
+        products_data = scrape_listing(listing_url, limit, max_price)
+        return jsonify(products_data)
+    else:
+        return jsonify({"error": "Product name is required"}), 400
 
 if __name__ == '__main__':
-    main()
-
+    app.run(debug=True)
