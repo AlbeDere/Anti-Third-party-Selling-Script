@@ -18,7 +18,7 @@ sort_by = {
 def api_scrape():
     # Extract query parameters
     product_name = request.args.get('product_name', type=str)
-    sort_option = request.args.get('sort_by', type=str)
+    sort_option = request.args.get('sort_by', type=str, default='Featured')
     limit = request.args.get('limit', default=10, type=int)
     max_price = request.args.get('max_price', type=float)
     
@@ -26,8 +26,6 @@ def api_scrape():
         return jsonify({"error": "Product name is required"}), 400
     
     product_name = product_name.strip().replace(" ", "+")
-    if sort_option not in sort_by:
-        return jsonify({"error": "Invalid sort_by parameter"}), 400
     
     listing_url = sort_by[sort_option].format(product_name=product_name)
     products_data = scrape_listing(listing_url, limit, max_price)
