@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from amazon import scrape_listing
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/scrape', methods=['GET'])
 def api_scrape():
