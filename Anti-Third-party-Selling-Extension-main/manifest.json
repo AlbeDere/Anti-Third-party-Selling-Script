@@ -1,0 +1,19 @@
+{
+    "manifest_version": 3,
+    "name": "Amazon Product Search",
+    "version": "1.0",
+    "description": "Search for similar products on Amazon.",
+    "permissions": [
+      "contextMenus",
+      "activeTab",
+      "scripting",
+      "storage"
+    ],
+    "action": {
+      "default_popup": "popup.html"
+    },
+    "background": {
+      "service_worker": "background.js"
+    }
+  }
+  
