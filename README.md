@@ -17,19 +17,21 @@ This project is a browser extension that allows users to highlight a product on 
 - BeautifulSoup
 - Requests
 - Flask-CORS
+- Docker (optional)
 
 ### Installation
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/yourusername/Product-Search-Browser-API.git
-    cd Product-Search-Browser-API
+    git clone https://github.com/yourusername/amazon-product-similarity-extension.git
+    cd amazon-product-similarity-extension
     ```
 
 2. Set up the Python environment:
     ```bash
     python3 -m venv venv
     source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+    pip install -r requirements.txt
     ```
 
 3. Run the Flask API:
@@ -37,7 +39,21 @@ This project is a browser extension that allows users to highlight a product on 
     python main.py
     ```
 
-### Configuring the Browser Extension
+### Docker
+
+Alternatively, you can run the application using Docker:
+
+1. Build the Docker image:
+    ```bash
+    docker build -t amazon-extension .
+    ```
+
+2. Run the Docker container:
+    ```bash
+    docker run -p 5000:5000 amazon-extension
+    ```
+
+## Configuring the Browser Extension
 
 1. Load the extension into your browser:
     - Open your browser's extension management page (e.g., `chrome://extensions` for Chrome).
@@ -73,4 +89,3 @@ Fetch similar products from Amazon.
 
 ```bash
 curl "http://127.0.0.1:5000/scrape?product_name=laptop&sort_by=Price%3A+Low+to+High&limit=5&max_price=1000"
-
